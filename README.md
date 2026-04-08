@@ -35,7 +35,7 @@ To run this project on your local machine, ensure you have Node.js installed, th
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/siddharth270/cf_ai_edge-guardian.git](https://github.com/siddharth270/cf_ai_edge-guardian.git)
+   git clone https://github.com/siddharth270/cf_ai_edge-guardian.git
    cd cf_ai_edge-guardian
 
 2. **Install Dependencies**
