@@ -1,20 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hello, World!</title>
-	</head>
-	<body>
-		<h1 id="heading"></h1>
-		<p>This page comes from a static asset stored at `public/index.html` as configured in `wrangler.jsonc`.</p>
-		<script>
-			fetch('/message')
-				.then((resp) => resp.text())
-				.then((text) => {
-					const h1 = document.getElementById('heading');
-					h1.textContent = text;
-				});
-		</script>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge-Guardian | Fleet Command</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #05274E; color: white; font-family: 'Inter', sans-serif; }
+        .cf-orange { color: #F6821F; }
+        .cf-border { border-color: rgba(246, 130, 31, 0.3); }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-10 border-b cf-border pb-6">
+            <div class="flex items-center gap-3">
+                <i data-lucide="shield" class="cf-orange w-8 h-8"></i>
+                <h1 class="text-2xl font-bold tracking-tight">EDGE<span class="cf-orange">GUARDIAN</span></h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2 bg-green-500/20 px-3 py-1 rounded-full border border-green-500/50">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-xs font-mono">EDGE_NETWORK_ACTIVE</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass p-6 rounded-xl border cf-border">
+                    <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">Live Fleet Map</h2>
+                    <div class="aspect-video bg-slate-900/50 rounded-lg border border-white/10 flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#F6821F 1px, transparent 1px); background-size: 30px 30px;"></div>
+                        
+                        <div id="bot-01" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-in-out group cursor-pointer z-10">
+                            <div class="absolute -inset-4 bg-orange-500/20 rounded-full animate-ping"></div>
+                            <i data-lucide="bot" class="cf-orange w-10 h-10 relative"></i>
+                            <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap">
+                                BOT-01: ACTIVE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="glass p-6 rounded-xl border cf-border h-full">
+                    <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">Command Input</h2>
+                    <textarea id="commandInput" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-sm font-mono focus:border-[#F6821F] outline-none h-32" placeholder="e.g. 'Bot 1, secure the perimeter at Sector 4'"></textarea>
+                    <button onclick="sendCommand()" class="w-full bg-[#F6821F] hover:bg-[#d46d16] transition-colors text-white font-bold py-3 rounded-lg mt-4 flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        EXECUTE VIA WORKFLOW
+                    </button>
+
+                    <div class="mt-8">
+                        <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">System Logs</h2>
+                        <div id="logs" class="text-[11px] font-mono text-slate-400 space-y-2 h-48 overflow-y-auto">
+                            <div class="text-green-400 font-bold">[SYSTEM] Durable Objects initialized...</div>
+                            <div class="text-blue-400">[SYSTEM] Listening on global edge...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        function addLog(msg, color = 'text-slate-400') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = color;
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logs.prepend(div);
+        }
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        function addLog(msg, color = 'text-slate-400') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = color;
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logs.prepend(div);
+        }
+
+        // NEW: Function to animate the bot across the grid
+        function moveBotToSector() {
+            const bot = document.getElementById('bot-01');
+            
+            // Generate random grid coordinates (keeping it within the bounds of the box)
+            const randomX = Math.floor(Math.random() * 80) + 10;
+            const randomY = Math.floor(Math.random() * 80) + 10;
+            
+            // Apply the new coordinates (CSS transition handles the animation)
+            bot.style.left = `${randomX}%`;
+            bot.style.top = `${randomY}%`;
+            
+            addLog(`[TELEMETRY] Bot 1 moving to coordinates [${randomX}, ${randomY}]`, 'text-blue-400');
+        }
+
+        async function sendCommand() {
+            const input = document.getElementById('commandInput');
+            const prompt = input.value;
+            if (!prompt) return;
+
+            addLog(`Parsing command: "${prompt}"...`, 'text-orange-400');
+            
+            try {
+                const response = await fetch('/api/command', {
+                    method: 'POST',
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const apiResult = await response.json();
+                
+                // Strip markdown formatting if the LLM includes it
+                let cleanString = apiResult.response
+                    .replace(/```json/gi, '')
+                    .replace(/```/g, '')
+                    .trim();
+                
+                const data = JSON.parse(cleanString); 
+                
+                addLog(`Llama 3.3 Reasoning: Dispatching ${data.robotId} for ${data.action}`, 'text-green-400');
+                
+                // NEW: Trigger the bot movement 1 second after the command is parsed
+                // This simulates the Cloudflare Workflow waking up the robot
+                setTimeout(moveBotToSector, 1000);
+                
+            } catch (e) {
+                addLog(`Error: ${e.message}`, 'text-red-400');
+                console.error("Full error:", e);
+            }
+        }
+    </script>
+</body>
 </html>
