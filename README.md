@@ -10,6 +10,9 @@ In traditional physical AI and robotics, fleet intelligence is often centralized
 
 **Edge-Guardian** explores a cloud-native alternative: What if we offload robot intelligence and state management to the global edge? By utilizing Cloudflare's serverless primitives, we can create a zero-latency "Digital Twin" for every physical robot, orchestrate complex missions with built-in resilience, and parse natural language commands at the edge.
 
+<img src="./assets/dashboard-screenshot.png" alt="Edge-Guardian Dashboard" width="400"/>
+<img src="./assets/cloudflare-dashboard.png" alt="Edge-Guardian Dashboard" width="400"/>
+
 ## 🏗️ Architecture & Cloudflare Stack
 
 This project was built to specifically demonstrate the interoperability of Cloudflare's developer platform:
